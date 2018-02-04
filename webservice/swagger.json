@@ -84,6 +84,7 @@
         "tags": [
           "user"
         ],
+        "consumes": ["multipart/form-data"],
         "summary": "Add a new user with their public key",
         "description": "",
         "parameters": [
@@ -98,7 +99,7 @@
             "in": "formData",
             "name": "public_key",
             "required": true,
-            "type": "string",
+            "type": "file",
             "description": "the public key for the user, in PEM format"
           }
         ],
@@ -148,10 +149,6 @@
                 "encrypted_body": {
                   "type": "string",
                   "description": "a base64 encoded encrypted message"
-                },
-                "iv": {
-                  "type": "string",
-                  "description": "a hexadecimal encoded IV"
                 }
               }
             }
@@ -163,20 +160,14 @@
           "message"
         ],
         "summary": "Store a new encrypted message",
+        "consumes": ["multipart/form-data"],
         "parameters": [
           {
             "in": "formData",
             "name": "message",
             "required": true,
-            "type": "string",
+            "type": "file",
             "description": "the encrypted message, encoded in binary"
-          },
-          {
-            "in": "formData",
-            "name": "iv",
-            "required": true,
-            "type": "string",
-            "description": "the IV used to encrypt the message, encoded in hexadecimal"
           }
         ],
         "responses": {
@@ -274,12 +265,13 @@
           "key"
         ],
         "summary": "Store a symmetric key encrypted with a user's public key",
+        "consumes": ["multipart/form-data"],
         "parameters": [
           {
             "in": "formData",
             "name": "encrypted_key",
             "required": true,
-            "type": "string",
+            "type": "file",
             "description": "the encrypted key, encoded in binary"
           },
           {
@@ -329,3 +321,4 @@
     }
   }
 }
+
