@@ -39,7 +39,7 @@ if($request_type == "GET") {
 elseif($request_type == "POST") {
 	// create a user/public key
 	$user_id = $_POST['user_id'];
-	$public_key = $_POST['public_key'];
+	$public_key = $_FILES['public_key'];
 
 	if(!isset($user_id)) {
 		die(json_encode(array("error" => true, "message" => "user_id is a required POST parameter")));
@@ -49,7 +49,7 @@ elseif($request_type == "POST") {
 	}
 
 	$stmt = $mysql->prepare("INSERT INTO User VALUES (?, ?)");
-	$stmt->bind_param("ss", $user_id, $public_key);
+	$stmt->bind_param("ss", $user_id, file_get_contents($public_key['tmp_name']));
 	if($stmt->execute()) {
 		echo json_encode(array("error" => false, "message" => "user created successfully"));
 	} else {
