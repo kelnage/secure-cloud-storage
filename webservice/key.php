@@ -43,9 +43,9 @@ if($request_type == "GET") {
 elseif($request_type == "POST") {
 	// upload a key for a message
 	$key = $_FILES['encrypted_key'];
-	$msg_id = $_GET['msg_id'];
-	$from = $_GET['from'];
-	$to = $_GET['to'];
+	$msg_id = $_POST['msg_id'];
+	$from = $_POST['from'];
+	$to = $_POST['to'];
 
 	// TODO: validate input
 
