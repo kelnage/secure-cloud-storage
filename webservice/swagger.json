@@ -1,0 +1,331 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is a simple server for storaging and retrieving secure cloud protected messages. This API provides no encryption capability, simply endpoints for storing and retrieving encrypted messages and keys.",
+    "version": "2.0.0",
+    "title": "Secure Storage",
+    "contact": {
+      "email": "nicholas.moore@cs.ox.ac.uk"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "basePath": "/secure_storage",
+  "tags": [
+    {
+      "name": "user",
+      "description": "View users and obtain their public keys"
+    },
+    {
+      "name": "message",
+      "description": "Access and store symmetrically encrypted messages"
+    },
+    {
+      "name": "key",
+      "description": "Access and store asymmetrically encrypted symmetric message keys"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/user.php": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "List the users and their public keys",
+        "description": "",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "user_id",
+            "description": "A specific user to fetch the public key for",
+            "required": false,
+            "type": "string",
+            "pattern": "^cls[0-9][0-9]$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "user list",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "user_id": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "user_id": {
+                  "type": "string"
+                },
+                "public_key": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Add a new user with their public key",
+        "description": "",
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "user_id",
+            "type": "string",
+            "required": true,
+            "description": "the user ID to be created"
+          },
+          {
+            "in": "formData",
+            "name": "public_key",
+            "required": true,
+            "type": "string",
+            "description": "the public key for the user, in PEM format"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "user created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/message.php": {
+      "get": {
+        "tags": [
+          "message"
+        ],
+        "summary": "Fetch a specific encrypted message",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "msg_id",
+            "type": "integer",
+            "description": "the ID for the message you want to retrieve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "an encrypted message",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "encrypted_body": {
+                  "type": "string",
+                  "description": "a base64 encoded encrypted message"
+                },
+                "iv": {
+                  "type": "string",
+                  "description": "a hexadecimal encoded IV"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "message"
+        ],
+        "summary": "Store a new encrypted message",
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "message",
+            "required": true,
+            "type": "string",
+            "description": "the encrypted message, encoded in binary"
+          },
+          {
+            "in": "formData",
+            "name": "iv",
+            "required": true,
+            "type": "string",
+            "description": "the IV used to encrypt the message, encoded in hexadecimal"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "message stored successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "message": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer",
+                  "description": "the ID for the created encrypted message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/key.php": {
+      "get": {
+        "tags": [
+          "key"
+        ],
+        "summary": "Retrieve the symmetric keys encrypted with a user's public key",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "key_id",
+            "required": false,
+            "type": "integer",
+            "description": "the ID for the key your want to retrieve"
+          },
+          {
+            "in": "query",
+            "name": "recipient",
+            "required": false,
+            "type": "string",
+            "description": "the ID of the user you want to see all keys for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the keys or the the IDs for the keys stored",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "keys": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key_id": {
+                        "type": "string"
+                      },
+                      "from": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "encrypted_key": {
+                  "type": "string",
+                  "description": "The symmetric key, encrypted with the to users public key, encoded in base64"
+                },
+                "from": {
+                  "type": "string",
+                  "description": "The user ID for the creator of the message"
+                },
+                "to": {
+                  "type": "string",
+                  "description": "The user ID for the recipient of the message"
+                },
+                "for_message": {
+                  "type": "integer",
+                  "description": "the message ID of the message encrypted with this symmetric key "
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "key"
+        ],
+        "summary": "Store a symmetric key encrypted with a user's public key",
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "encrypted_key",
+            "required": true,
+            "type": "string",
+            "description": "the encrypted key, encoded in binary"
+          },
+          {
+            "in": "formData",
+            "name": "msg_id",
+            "required": true,
+            "type": "string",
+            "description": "the message ID this key is for"
+          },
+          {
+            "in": "formData",
+            "name": "from",
+            "required": true,
+            "type": "string",
+            "description": "the user ID for the sender of the message"
+          },
+          {
+            "in": "formData",
+            "name": "to",
+            "required": true,
+            "type": "string",
+            "description": "the user ID for the recipient of the message"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "message key stored successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "message": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer",
+                  "description": "the ID for the created encrypted message key"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+# vim temp files
+*.swp
+
+# webservice credentials
+webservice/database.php
+
+# script output files
+scripts/*.bin
+scripts/*.dec
+scripts/*.enc
+scripts/*.hex
+scripts/*.pem
+scripts/*.txt
+
