@@ -18,7 +18,9 @@ if($request_type == "GET") {
 		$stmt->execute();
 		$stmt->bind_result($msgId, $enckey, $fromUser, $toUser);
 		$stmt->fetch();
-		echo json_encode(array("error" => false, "encrypted_key" => $enckey, "from" => $fromUser, "to" => $toUser, "for_message" => $msgId));
+		header("Content-Type: application/force-download");
+		header("Content-Disposition: attachment; filename=\"{$fromUser}_encrypted_message_key.enc\";");
+		echo base64_decode($enckey);
 		$stmt->free_result();
 	} elseif(isset($recipient)) {
 		$stmt = $mysql->prepare("SELECT id, msgId, enckey, fromUser FROM MessageKey WHERE toUser = ?");

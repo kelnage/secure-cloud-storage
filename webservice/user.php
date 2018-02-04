@@ -30,6 +30,8 @@ if($request_type == "GET") {
 		$stmt->execute();
 		$stmt->bind_result($public_key);
 		$stmt->fetch();
+ 		header("Content-Type: application/force-download");
+		header("Content-Disposition: attachment; filename=\"{$user_id}_public_key.pem\";");
 		echo urldecode($public_key);
 		$stmt->free_result();
 	}
