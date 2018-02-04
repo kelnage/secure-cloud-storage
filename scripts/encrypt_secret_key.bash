@@ -51,6 +51,7 @@ if [ $? -ne 0 ]; then
     echo "#########################################################################"
     echo "Encryption of the symmetric key went wrong, please ask the TA for assistance"
     echo "#########################################################################"
+    exit 1
 else
     echo "========================================================================="
     echo "Symmetric key encrypted and stored into: encrypted_$ENC_KEY.$OTHER_PUB_KEY.enc. You can now upload the encrypted symmetric key"

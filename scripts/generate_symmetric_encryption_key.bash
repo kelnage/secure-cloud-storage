@@ -19,6 +19,7 @@ if [ $? -ne 0 ]; then
     echo "#########################################################################"
     echo "Generation of the encryption key went wrong, please ask the TA for assistance"
     echo "#########################################################################"
+    exit 1
 else
     echo "========================================================================="
     echo "Symmetric encryption key generated. You can now encrypt your secret message"

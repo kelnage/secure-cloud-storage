@@ -35,6 +35,7 @@ if [ ! -f "$SECRET_KEY" -o ! -f "$SECRET_MSG" ]; then
         echo "  * $SECRET_MSG"
     fi
     echo "#########################################################################"
+    exit 1
 fi
 
 
@@ -47,6 +48,7 @@ if [ $? -ne 0 ]; then
     echo "#########################################################################"
     echo "Decryption of the symmetric key went wrong, please ask the TA for assistance"
     echo "#########################################################################"
+    exit 1
 fi
 
 echo "========================================================================="
@@ -58,6 +60,7 @@ if [ $? -ne 0 ]; then
     echo "#########################################################################"
     echo "Decryption of the message went wrong, please ask the TA for assistance"
     echo "#########################################################################"
+    exit 1
 else
     echo "========================================================================="
     echo "The secret message has been successfully decrypted into: $SECRET_MSG.txt"

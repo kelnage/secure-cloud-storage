@@ -20,6 +20,7 @@ if [ $? -ne 0 ]; then
     echo "#########################################################################"
     echo "Generation of the private key went wrong, please ask the TA for assistance"
     echo "#########################################################################"
+    exit 1
 fi
 
 echo "========================================================================="
@@ -31,6 +32,7 @@ if [ $? -ne 0 ]; then
     echo "#########################################################################"
     echo "Generation of the public key went wrong, please ask the TA for assistance"
     echo "#########################################################################"
+    exit 1
 else
     echo "========================================================================="
     echo "Private and public keys generated. You can now upload $PUB_KEY to the messaging server"
