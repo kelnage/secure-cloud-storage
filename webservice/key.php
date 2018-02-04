@@ -42,7 +42,7 @@ if($request_type == "GET") {
 }
 elseif($request_type == "POST") {
 	// upload a key for a message
-	$key = $_POST['encrypted_key'];
+	$key = $_FILES['encrypted_key'];
 	$msg_id = $_GET['msg_id'];
 	$from = $_GET['from'];
 	$to = $_GET['to'];
@@ -63,7 +63,7 @@ elseif($request_type == "POST") {
 	}
 
 	$stmt = $mysql->prepare("INSERT INTO MessageKey VALUES (NULL, ?, ?, ?, ?)");
-	$stmt->bind_param("isss", $msg_id, base64_encode($key), $from, $to);
+	$stmt->bind_param("isss", $msg_id, base64_encode(file_get_contents($key['tmp_name'])), $from, $to);
 
 	if($stmt->execute()) {
 		echo json_encode(array("error" => false, "message" => "message key stored successfully", "id" => $stmt->insert_id));

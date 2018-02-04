@@ -27,7 +27,7 @@ if($request_type == "GET") {
 }
 elseif($request_type == "POST") {
 	// create a message
-	$message = $_POST['message'];
+	$message = $_FILES['message'];
 
 	// TODO: validate input
 
@@ -36,7 +36,7 @@ elseif($request_type == "POST") {
 	}
 
 	$stmt = $mysql->prepare("INSERT INTO Message VALUES (NULL, ?)");
-	$stmt->bind_param("s", base64_encode($message));
+	$stmt->bind_param("s", base64_encode(file_get_contents($message['tmp_name'])));
 
 	if($stmt->execute()) {
 		echo json_encode(array("error" => false, "message" => "message stored successfully", "id" => $stmt->insert_id));
