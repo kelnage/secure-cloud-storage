@@ -1,6 +1,7 @@
 <?php
 
 require("database.php");
+require("validation.php");
 
 $request_type = $_SERVER['REQUEST_METHOD'];
 
@@ -9,17 +10,20 @@ if($request_type == "GET") {
 	$msg_id = $_GET['msg_id'];
 
 	if(!isset($msg_id)) {
-		die(json_encode(array("error" => true, "message" => "msg_id is a required GET parameter")));
+		die_message("msg_id is a required GET parameter");
 	}
 
 	$stmt = $mysql->prepare("SELECT encbody FROM Message WHERE id = ?");
 	if(!$stmt) {
-		die(json_encode(array("error" => true, "message" => "database error: " . $mysql->error)));
+		die_message("database error: " . $mysql->error);
 	}
 	$stmt->bind_param("s", $msg_id);
 	$stmt->execute();
 	$stmt->bind_result($body);
 	$stmt->fetch();
+	if(strlen($body) === 0) {
+		die_message("no key stored for msg_id " . $msg_id);	
+	}
 	header("Content-Type: application/force-download");
 	header("Content-Disposition: attachment; filename=\"received_encrypted_message.bin\";");
 	echo base64_decode($body);
@@ -32,7 +36,7 @@ elseif($request_type == "POST") {
 	// TODO: validate input
 
 	if(!isset($message)) {
-		die(json_encode(array("error" => true, "message" => "message is a required POST parameter")));
+		die_message("message is a required POST parameter");
 	}
 
 	$stmt = $mysql->prepare("INSERT INTO Message VALUES (NULL, ?)");
@@ -41,12 +45,12 @@ elseif($request_type == "POST") {
 	if($stmt->execute()) {
 		echo json_encode(array("error" => false, "message" => "message stored successfully", "id" => $stmt->insert_id));
 	} else {
-		die(json_encode(array("error" => true, "message" => "database error: " . $stmt->error)));
+		die_message("database error: " . $mysql->error);
 	}
 }
 else {
 	// error
-	die(json_encode(array("error" => true, "message" => "unrecognised request type")));
+	die_message("unrecognised request type");
 }
 
 $mysql->close();

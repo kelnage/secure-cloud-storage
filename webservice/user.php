@@ -1,6 +1,7 @@
 <?php
 
 require("database.php");
+require("validation.php");
 
 $request_type = $_SERVER['REQUEST_METHOD'];
 
@@ -18,18 +19,24 @@ if($request_type == "GET") {
 			echo json_encode(array("error" => false, "users" => $res_arr));
 			$result->close();
 		} else {
-			echo json_encode(array("error" => true, "message" => "no users found"));
+			die_message("no users found");
 		}
 	} else {
+		if(!validate_user($user_id)) {
+			die_message("recipient must be in the form cls00-cls18");
+		}
 		// fetch a specific user's public key
 		$stmt = $mysql->prepare("SELECT pubkey FROM User WHERE userid = ?");
 		if(!$stmt) {
-			die(json_encode(array("error" => true, "message" => "database error: " . $mysql->error)));
+			die_message("database error: " . $mysql->error);
 		}
 		$stmt->bind_param("s", $user_id);
 		$stmt->execute();
 		$stmt->bind_result($public_key);
 		$stmt->fetch();
+		if(strlen($public_key) === 0) {
+			die_message("no public key stored for user_id " . $user_id);
+		}
  		header("Content-Type: application/force-download");
 		header("Content-Disposition: attachment; filename=\"{$user_id}_public_key.pem\";");
 		echo $public_key;
@@ -42,10 +49,14 @@ elseif($request_type == "POST") {
 	$public_key = $_FILES['public_key'];
 
 	if(!isset($user_id)) {
-		die(json_encode(array("error" => true, "message" => "user_id is a required POST parameter")));
+		die_message("user_id is a required POST parameter");
+	} else if(!validate_user($user_id)) {
+		die_message("user_id must be in the form cls00-cls18");
 	}
 	if(!isset($public_key)) {
-		die(json_encode(array("error" => true, "message" => "public_key is a required POST parameter")));
+		die_message("public_key is a required POST parameter");
+	} else if(!validate_public_key($public_key)) {
+		die_message("public_key must be a valid PEM encoded public key");
 	}
 
 	$stmt = $mysql->prepare("INSERT INTO User VALUES (?, ?)");
@@ -53,12 +64,13 @@ elseif($request_type == "POST") {
 	if($stmt->execute()) {
 		echo json_encode(array("error" => false, "message" => "user created successfully"));
 	} else {
-		die(json_encode(array("error" => true, "message" => "database error: " . $stmt->error)));
+		die_message("database error: " . $mysql->error);
 	}
 }
 else {
 	// error
-	die(json_encode(array("error" => true, "message" => "unrecognised request type")));
+	die_message("unrecognised request type");
 }
 
 $mysql->close();
+
