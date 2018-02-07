@@ -1,6 +1,7 @@
 <?php
 
 require("database.php");
+require("validation.php");
 
 $request_type = $_SERVER['REQUEST_METHOD'];
 
@@ -12,7 +13,7 @@ if($request_type == "GET") {
 	if(isset($key_id)) {
 		$stmt = $mysql->prepare("SELECT msgId, enckey, fromUser, toUser FROM MessageKey WHERE id = ?");
 		if(!$stmt) {
-			die(json_encode(array("error" => true, "message" => "database error: " . $mysql->error)));
+			die_message("database error: " . $mysql->error);
 		}
 		$stmt->bind_param("s", $key_id);
 		$stmt->execute();
@@ -23,9 +24,12 @@ if($request_type == "GET") {
 		echo base64_decode($enckey);
 		$stmt->free_result();
 	} elseif(isset($recipient)) {
+		if(!validate_user($recipient)) {
+			die_message("recipient must be in the form cls00-cls18");
+		}
 		$stmt = $mysql->prepare("SELECT id, msgId, enckey, fromUser FROM MessageKey WHERE toUser = ?");
 		if(!$stmt) {
-			die(json_encode(array("error" => true, "message" => "database error: " . $mysql->error)));
+			die_message("database error: " . $mysql->error);
 		}
 		$stmt->bind_param("s", $recipient);
 		$stmt->execute();
@@ -37,7 +41,7 @@ if($request_type == "GET") {
 		echo json_encode(array("error" => false, "keys" => $message_keys));
 		$stmt->free_result();
 	} else {
-		die(json_encode(array("error" => true, "message" => "key_id or recipient are required GET parameters")));
+		die_message("key_id or recipient are required GET parameters");
 	}
 }
 elseif($request_type == "POST") {
@@ -47,19 +51,23 @@ elseif($request_type == "POST") {
 	$from = $_POST['from'];
 	$to = $_POST['to'];
 
-	// TODO: validate input
+	// TODO: validate key
 
 	if(!isset($key)) {
-		die(json_encode(array("error" => true, "message" => "encrypted_key is a required POST parameter")));
+		die_message("encrypted_key is a required POST parameter");
 	}
 	if(!isset($msg_id)) {
-		die(json_encode(array("error" => true, "message" => "msg_id is a required POST parameter")));
+		die_message("msg_id is a required POST parameter");
 	}
 	if(!isset($from)) {
-		die(json_encode(array("error" => true, "message" => "from is a required POST parameter")));
+		die_message("from is a required POST parameter");
+	} else if(!validate_user($from)) {
+		die_message("from must be in the form cls00-cls18");
 	}
 	if(!isset($to)) {
-		die(json_encode(array("error" => true, "message" => "to is a required POST parameter")));
+		die_message("to is a required POST parameter");
+	} else if(!validate_user($to)) {
+		die_message("to must be in the form cls00-cls18");
 	}
 
 	$stmt = $mysql->prepare("INSERT INTO MessageKey VALUES (NULL, ?, ?, ?, ?)");
@@ -68,12 +76,12 @@ elseif($request_type == "POST") {
 	if($stmt->execute()) {
 		echo json_encode(array("error" => false, "message" => "message key stored successfully", "id" => $stmt->insert_id));
 	} else {
-		die(json_encode(array("error" => true, "message" => "database error: " . $stmt->error)));
+		die_message("database error: " . $mysql->error);
 	}
 }
 else {
 	// error
-	die(json_encode(array("error" => true, "message" => "unrecognised request type")));
+	die_message("unrecognised request type");
 }
 
 $mysql->close();
