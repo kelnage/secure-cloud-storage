@@ -19,6 +19,9 @@ if($request_type == "GET") {
 		$stmt->execute();
 		$stmt->bind_result($msgId, $enckey, $fromUser, $toUser);
 		$stmt->fetch();
+		if(strlen($enckey) === 0) {
+			die_message("no key stored for key_id " . $key_id);
+		}
 		header("Content-Type: application/force-download");
 		header("Content-Disposition: attachment; filename=\"{$fromUser}_encrypted_message_key.enc\";");
 		echo base64_decode($enckey);

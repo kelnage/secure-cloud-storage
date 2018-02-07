@@ -22,7 +22,7 @@ if($request_type == "GET") {
 	$stmt->bind_result($body);
 	$stmt->fetch();
 	if(strlen($body) === 0) {
-		die_message("no key stored for msg_id " . $msg_id);	
+		die_message("no message stored for msg_id " . $msg_id);	
 	}
 	header("Content-Type: application/force-download");
 	header("Content-Disposition: attachment; filename=\"received_encrypted_message.bin\";");
