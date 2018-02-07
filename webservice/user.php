@@ -55,7 +55,7 @@ elseif($request_type == "POST") {
 	}
 	if(!isset($public_key)) {
 		die_message("public_key is a required POST parameter");
-	} else if(!validate_public_key($public_key)) {
+	} else if(!validate_public_key(file_get_contents($public_key['tmp_name']))) {
 		die_message("public_key must be a valid PEM encoded public key");
 	}
 
