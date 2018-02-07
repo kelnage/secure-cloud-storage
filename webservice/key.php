@@ -39,7 +39,7 @@ if($request_type == "GET") {
 		$stmt->bind_result($id, $msgId, $enckey, $fromUser);
 		$message_keys = array();
 		while ($stmt->fetch()) {
-			array_push($message_keys, array("key_id" => $id, "from" => $fromUser));
+			array_push($message_keys, array("key_id" => $id, "msg_id" => $msgId, "from" => $fromUser));
 		}
 		echo json_encode(array("error" => false, "keys" => $message_keys));
 		$stmt->free_result();
