@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "This is a simple server for storaging and retrieving secure cloud protected messages. This API provides no encryption capability, simply endpoints for storing and retrieving encrypted messages and keys.",
+    "description": "This is a simple server for storing and retrieving secure cloud protected messages. This API provides no encryption capability, simply endpoints for storing and retrieving encrypted messages and keys.",
     "version": "2.0.0",
     "title": "Secure Storage",
     "contact": {
